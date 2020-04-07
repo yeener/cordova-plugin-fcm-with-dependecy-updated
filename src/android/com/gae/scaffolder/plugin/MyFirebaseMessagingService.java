@@ -1,5 +1,7 @@
 package com.gae.scaffolder.plugin;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,6 +10,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
+import android.os.Build;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -62,7 +65,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         
         Log.d(TAG, "\tNotification Data: " + data.toString());
         FCMPlugin.sendPushPayload( data );
-        //sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), remoteMessage.getData());
+        sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), remoteMessage.getData());
     }
     // [END receive_message]
 
@@ -71,7 +74,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String title, String messageBody, Map<String, Object> data) {
+    private void sendNotification(String title, String messageBody, Map<String, String> data) {
         Intent intent = new Intent(this, FCMPluginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         for (String key : data.keySet()) {
@@ -81,8 +84,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(getApplicationInfo().icon)
+        createNotificationChannel();
+
+        Notification.Builder notificationBuilder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationBuilder = new Notification.Builder(this, "notification");
+        } else {
+            notificationBuilder = new Notification.Builder(this);
+        }
+        notificationBuilder.setSmallIcon(getApplicationInfo().icon)
                 .setContentTitle(title)
                 .setContentText(messageBody)
                 .setAutoCancel(true)
@@ -93,5 +103,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("notification", "Notification", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = this.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }
