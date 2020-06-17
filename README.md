@@ -18,7 +18,7 @@ After a lot of work, the first release of the plugin https://github.com/andrehti
 ### Version 7.0.0 Beta (04/06/2020)
 
 JS methods refactored for a more Promise approach and Ionic support included.
-Check this out by installing the [v7.0.0-beta.2](https://www.npmjs.com/package/cordova-plugin-fcm-with-dependecy-updated/v/7.0.0-beta.2) and reporting any issues you find.
+Check this out by installing the [v7.0.0-beta.3](https://www.npmjs.com/package/cordova-plugin-fcm-with-dependecy-updated/v/7.0.0-beta.3) and reporting any issues you find.
 
 ### Version 6.4.0 (21/05/2020)
 
